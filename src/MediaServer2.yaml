@@ -1,0 +1,388 @@
+---
+openapi: 3.0.2
+info:
+  title: MediaServer
+  version: 1.0.0
+  x-logo:
+    url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRoDjaL6CD4amMOYsA6Z-DTfXJvP57pU1YL0Q&usqp=CAU'
+    altText: MediaServices
+  description: Maintain the work flow of file uploading
+tags:
+  - name: user
+    description: user details
+
+  - name: file
+    description: file details
+
+x-tagGroups:
+  - name: General
+    tags:
+      - user
+      - file
+servers:
+- url: http://www.kaanathas.com:80/api
+  description: base end point
+paths:
+  /user:
+    summary: All registed user
+    description: User details who are registed for the media servie
+    get:
+      tags:
+      - user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+          description: registed users are fetch
+        "404":
+          $ref: '#/components/responses/failed'
+      security:
+      - BasicAuth: []
+      operationId: GetAllUsers
+      summary: All Users information will get
+      description: All user details will return so we can see how many and who are
+        registerd in the services
+     
+    post:
+      requestBody:
+        description: |-
+          "email"
+          "password"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+        required: true
+      tags:
+      - user
+      responses:
+        "200":
+          content:
+            application/json: {}
+          description: user registeration successfull
+        "401":
+          content:
+            text/xml: {}
+          description: registration operation is failed
+      operationId: userRegistertions
+      summary: register a user
+      description: it is register the new user for the media services
+      x-codeSamples:
+         - lang: 'javascript'
+           source: |
+            let postBody = user;
+            if (user === undefined || user === null) {
+              throw new Error("Missing the required parameter 'user' when calling userRegistertions"); }
+            let authNames = ['BasicAuth'];
+            let contentTypes = ['application/json'];
+            let accepts = ['application/json', 'text/xml'];
+            let returnType = null;
+            return this.apiClient.callApi(
+              '/user', 'POST',
+              postBody,
+              authNames, contentTypes, accepts, returnType, null, callback
+            );
+              
+  /user/{email}:
+    summary: user email details are use for activities
+    description: 'email detail unique  each user '
+    get:
+      tags:
+      - user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+          description: suceesfull a user registed via this email
+        "404":
+          content:
+            text/xml: {}
+          description: No user is registed via this email
+      security:
+      - BasicAuth: []
+      operationId: findUserByEmail
+      summary: find the user
+      description: return the user who has this email address which is registed to
+        this services
+    parameters:
+    - examples:
+        email:
+          value: kaanathas087@gmail.com
+      name: email
+      description: find the scpefic user
+      schema:
+        type: string
+      in: path
+      required: true
+  /file/{id}:
+    summary: file have unique id
+    description: from file id can identify the file
+    get:
+      tags:
+      - file
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+          description: file is retrive suceesful
+        "404":
+          content:
+            text/xml:
+              schema:
+                type: string
+          description: invalid id is passed
+      security:
+      - BasicAuth: []
+      operationId: FileFindById
+      summary: find a file
+      description: return the file which is have the file id
+
+      x-codeSamples:
+         - lang: 'javascript'
+           source: |
+            if (token === undefined || token === null) {
+            throw new Error("Missing the required parameter 'token' when calling fileFindById"); }
+   
+            if (id === undefined || id === null) {
+            throw new Error("Missing the required parameter 'id' when calling fileFindById"); }
+
+            let pathParams = {
+            'id': id};
+            let queryParams = { };
+            let headerParams = {
+            'token': token};
+            let formParams = {};
+
+            let authNames = ['BasicAuth'];
+            let contentTypes = [];
+            let accepts = ['application/json', 'text/xml'];
+            let returnType = FileInfo;
+            return this.apiClient.callApi(
+            '/file/{id}', 'GET',
+            pathParams, queryParams, headerParams, formParams, postBody,
+            authNames, contentTypes, accepts, returnType, null, callback
+            );
+                   
+    put:
+      requestBody:
+        description: public
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              public:
+                value: '"public"'
+        required: true
+      tags:
+      - file
+      responses:
+        "200":
+          content:
+            application/json: {}
+          description: successfully updated file access state
+        "401":
+          description: un authorized person cant make change operation failed
+      operationId: accessChange
+      summary: update the access
+      description: to change the access private to public
+    delete:
+      tags:
+      - file
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: file delete successful
+        "404":
+          content:
+            text/xml:
+              schema:
+                type: string
+          description: failed to delete the file
+      operationId: delete file by id
+      summary: delete the file
+      description: This operation delete the file which is have id
+      x-codeSamples:
+         - lang: 'javascript'
+           source: |
+            let postBody = body;
+            if (token === undefined || token === null) {
+            throw new Error("Missing the required parameter 'token' when calling accessChange");}
+            if (id === undefined || id === null) {
+            throw new Error("Missing the required parameter 'id' when calling accessChange");}
+            if (body === undefined || body === null) {
+            throw new Error("Missing the required parameter 'body' when calling accessChange"); }
+            let pathParams = {
+            'id': id };
+            let queryParams = {};
+            let headerParams = {
+            'token': token };
+            let formParams = { };
+            let authNames = ['BasicAuth'];
+            let contentTypes = ['application/json'];
+            let accepts = ['application/json'];
+            let returnType = null;
+            return this.apiClient.callApi(
+            '/file/{id}', 'PUT',
+            pathParams, queryParams, headerParams, formParams, postBody,
+            authNames, contentTypes, accepts, returnType, null, callback
+            );
+
+    parameters:
+    - name: token
+      description: this token unique for the user
+      schema:
+        type: integer
+      in: header
+      required: true
+    - examples:
+        id:
+          value: "1"
+      name: id
+      description: it is file id store with file details
+      schema:
+        type: integer
+      in: path
+      required: true
+  /file:
+    summary: file operations
+    description: file upload and retrive all files
+    get:
+      tags:
+      - file
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+          description: 'successfull operation find to public files '
+        "404":
+          content:
+            text/xml: {}
+          description: failed cant got the public files
+      security:
+      - BasicAuth: []
+      operationId: getAllPublicFiles
+      summary: retrive the file which is in public access
+      description: return the files which is set to public access
+    post:
+      requestBody:
+        description: send the file with form data
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileInfo'
+        required: true
+      tags:
+      - file
+      parameters:
+      - name: token
+        description: this token is unique for each user
+        schema:
+          type: integer
+        in: header
+        required: true
+      responses:
+        "200":
+          content:
+            application/json: {}
+          description: private file upload suceesfull
+        "400":
+          content:
+            text/xml: {}
+          description: file uploading is failed
+      operationId: uploadfile
+      summary: upload the file
+      description: user Upload  the private file
+
+      x-codeSamples:
+         - lang: 'javascript'
+           source: |
+              opts = opts || {};
+              let postBody = null;
+              if (token === undefined || token === null) {
+              throw new Error("Missing the required parameter 'token' when calling uploadfile");  
+              let pathParams = {  };
+              let queryParams = { };
+              let headerParams = {
+              'token': token};
+              let formParams = {
+              'name': opts['name'],
+              'UploadBy': opts['uploadBy'],
+              'fileAccess': opts['fileAccess'],
+              'description': opts['description'],
+              'id': opts['id'] };
+              let authNames = ['BasicAuth'];
+              let contentTypes = ['multipart/form-data'];
+              let accepts = ['application/json', 'text/xml'];
+              let returnType = null;
+              return this.apiClient.callApi(
+              '/file', 'POST',
+              pathParams, queryParams, headerParams, formParams, postBody,
+              authNames, contentTypes, accepts, returnType, null, callback
+              );
+
+components:
+  schemas:
+    user:
+      title: Root Type for user
+      description: Basic User info for auth purpose
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        token:
+          description: this token use for login
+          type: integer
+        id:
+          description: ""
+          type: integer
+      example:
+        email: kaanathas087@gmail.com
+        password: 3456@53773
+    FileInfo:
+      title: Root Type for FileInfo
+      description: This information for file operations
+      type: object
+      properties:
+        name:
+          type: string
+        UploadBy:
+          type: string
+        fileAccess:
+          type: string
+        description:
+          type: string
+        id:
+          description: ""
+          type: integer
+      example:
+        name: cv.pdf
+        UploadBy: kaanathas087@gmail.com
+        fileAccess: private
+        description: cv details of user
+  responses:
+    failed:
+      description: this request is not allowed
+  securitySchemes:
+    BasicAuth:
+      type: apiKey
+      description: this is the basic auth for access the api
+      name: apikey
+      in: query
+security:
+- BasicAuth: []
